@@ -1,19 +1,47 @@
 <script>
-import Nested from "./Nested.svelte";
 
-	export let name;
+	import { DeleteIcon } from 'svelte-feather-icons';
+	import Button from "smelte/src/components/Button";
+	import TextField from "smelte/src/components/TextField";
+
+	let tasks = ['Get Stuff Done', 'Number 2'];
+	let task;
+
+	function addTask() {
+		if (task.length > 3) {
+			tasks = [...tasks, task];
+			task = '';
+		}
+	}
+
+	function removeTask(index) {
+		let newTasks = [...tasks];
+		newTasks.splice(index, 1);
+		tasks = newTasks;
+	}
 </script>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>The creator and his proponents encourage a low-tech approach, using a mechanical timer, paper, and pencil.</p>
-	<p>The physical act of winding the timer confirms the user's determination to start the task;
-		ticking externalises desire to complete the task; ringing announces a break.
-	</p>
+	<h1>Task List</h1>
 	<p>
-		Flow and focus become associated with these physical stimuli
+		Add a task
 	</p>
-	<Nested></Nested>
+	<TextField outlined="true" bind:value="{task}" style="width: 25%"/>
+	<Button on:click="{addTask}">Add</Button>
+
+	<ul>
+		{#each tasks as task, index}
+		<li on:click="{() => removeTask(index)}">
+			<span style="display: flex; justify-content: center; align-item: center">
+				{task}
+				<Button style="margin: 10px" color="primary" small="true" flat="true">
+					<DeleteIcon size="24"/>
+				</Button>
+			</span>
+		</li>
+		{/each}
+		
+	</ul>
 </main>
 
 <style>
