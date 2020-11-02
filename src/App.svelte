@@ -1,67 +1,84 @@
 <script>
+  import { DeleteIcon } from 'svelte-feather-icons';
+  import Button from 'smelte/src/components/Button';
+  import List from 'smelte/src/components/List';
+  import TextField from 'smelte/src/components/TextField';
+  import dark from 'smelte/src/dark.js';
 
-	import { DeleteIcon } from 'svelte-feather-icons';
-	import Button from "smelte/src/components/Button";
-	import TextField from "smelte/src/components/TextField";
+  const darkMode = dark();
+  let text;
 
-	let tasks = ['Get Stuff Done', 'Number 2'];
-	let task;
+  let tasks = [
+    {
+      text: 'Task 1',
+    },
+    {
+      text: 'Task 2',
+    },
+    {
+      text: 'Task 3',
+    },
+  ];
 
-	function addTask() {
-		if (task.length > 3) {
-			tasks = [...tasks, task];
-			task = '';
-		}
-	}
+  function addTask() {
+    if (text.length > 3) {
+      const newTask = {
+        text: text,
+      };
+      tasks = [...tasks, newTask];
+      text = '';
+    }
+  }
 
-	function removeTask(index) {
-		let newTasks = [...tasks];
-		newTasks.splice(index, 1);
-		tasks = newTasks;
-	}
+  function removeTask(task) {
+    let index = tasks.indexOf(task);
+    let newTasks = [...tasks];
+    newTasks.splice(index, 1);
+    tasks = newTasks;
+  }
 </script>
 
-<main>
-	<h1>Task List</h1>
-	<p>
-		Add a task
-	</p>
-	<TextField outlined="true" bind:value="{task}" style="width: 25%"/>
-	<Button on:click="{addTask}">Add</Button>
-
-	<ul>
-		{#each tasks as task, index}
-		<li on:click="{() => removeTask(index)}">
-			<span style="display: flex; justify-content: center; align-item: center">
-				{task}
-				<Button style="margin: 10px" color="primary" small="true" flat="true">
-					<DeleteIcon size="24"/>
-				</Button>
-			</span>
-		</li>
-		{/each}
-		
-	</ul>
-</main>
-
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
+  main {
+    text-align: center;
+    padding: 1em;
+    max-width: 200px;
+    margin: 0 auto;
+  }
 
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
+  h1 {
+    color: #ff3e00;
+    text-transform: uppercase;
+    font-size: 4em;
+    font-weight: 100;
+  }
 
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
-	}
+  @media (min-width: 640px) {
+    main {
+      max-width: none;
+    }
+  }
 </style>
+
+<main>
+  <Button bind:value={$darkMode}>Toggle dark mode</Button>
+  <h1>Task List</h1>
+  <TextField outlined="true" bind:value={text} style="max-width: 65%" />
+  <Button on:click={addTask}>Add</Button>
+
+  <List items={tasks}>
+    <li slot="item" let:item>
+      <span>
+        {item.text}
+        <Button
+          on:click={() => removeTask(item)}
+          style="margin: 10px"
+          color="primary"
+          small="true"
+          flat="true">
+          <DeleteIcon size="24" />
+        </Button>
+      </span>
+    </li>
+  </List>
+</main>
