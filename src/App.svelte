@@ -1,62 +1,65 @@
 <script>
   import dark from 'smelte/src/dark.js';
+  import breakpoints from 'smelte/src/breakpoints.js';
   import { DeleteIcon } from 'svelte-feather-icons';
-  import {
-    Button,
-    TextField,
-    List,
-    Checkbox,
-    Snackbar,
-    notifier,
-    Notifications,
-  } from 'smelte';
+  import { Button, TextField, List, Checkbox, Snackbar, Card } from 'smelte';
 
   const darkMode = dark();
-
-  function notify() {
-    notifier.notify(message);
-  }
-
+  const bp = breakpoints();
   let showSnackbar = false;
 
-  let text;
+  import { quintOut } from 'svelte/easing';
+  import { crossfade } from 'svelte/transition';
+
+ 
+  const [send, receive] = crossfade({
+    duration: (d) => Math.sqrt(d * 200),
+
+    fallback(node, params) {
+      const style = getComputedStyle(node);
+      const transform = style.transform === 'none' ? '' : style.transform;
+
+      return {
+        duration: 600,
+        easing: quintOut,
+        css: (t) => `
+					transform: ${transform} scale(${t});
+					opacity: ${t}
+				`,
+      };
+    },
+  });
+
   let uid = 1;
 
-  let tasks = [
-    {
-      id: uid++,
-      text: 'Task 1',
-      done: false,
-    },
-    {
-      id: uid++,
-      text: 'Task 2',
-      done: true,
-    },
-    {
-      id: uid++,
-      text: 'Task 3',
-      done: false,
-    },
+  let todos = [
+    { id: uid++, done: false, description: 'write some docs' },
+    { id: uid++, done: false, description: 'start writing blog post' },
+    { id: uid++, done: true, description: 'buy some milk' },
+    { id: uid++, done: false, description: 'mow the lawn' },
+    { id: uid++, done: false, description: 'feed the turtle' },
+    { id: uid++, done: false, description: 'fix some bugs' },
   ];
 
-  function addTask() {
-    if (text.length > 3) {
-      const newTask = {
-        text: text,
-        id: uid++,
-      };
-      tasks = [...tasks, newTask];
-      text = '';
-      showSnackbar = true;
-    }
+  function add(input) {
+    const todo = {
+      id: uid++,
+      done: false,
+      description: input.value,
+    };
+
+    todos = [todo, ...todos];
+    input.value = '';
   }
 
-  function removeTask(task) {
-    let index = tasks.indexOf(task);
-    let newTasks = [...tasks];
-    newTasks.splice(index, 1);
-    tasks = newTasks;
+  function remove(todo) {
+    todos = todos.filter((t) => t !== todo);
+  }
+
+  function mark(todo, done) {
+    todo.done = done;
+    remove(todo);
+    todos = todos.concat(todo);
   }
 </script>
 
@@ -64,22 +67,14 @@
   main {
     text-align: center;
     padding: 1em;
-    max-width: 300px;
     margin: 0 auto;
   }
-
-  h1 {
-    color: #ff3e00;
-    text-transform: uppercase;
-    font-size: 4em;
-    font-weight: 100;
-  }
-
   @media (min-width: 600px) {
     main {
       max-width: none;
     }
   }
+
 </style>
 
 <main>
@@ -87,50 +82,54 @@
     <div>Task Added</div>
   </Snackbar>
 
+  <h1>Svelte Pomo</h1>
+  
   <Button bind:value={$darkMode}>Toggle dark mode</Button>
-  <h1>Task List</h1>
-  <TextField
-    outlined="true"
-    bind:value={text}
-    style="max-width: 65%"
-    on:keydown={(e) => e.key === 'Enter' && addTask()} />
-  <Button on:click={addTask} style="margin-bottom: 20px;">Add</Button>
 
-  <div style="display: flex; margin-left: auto; margin-right: auto;">
-    <div style="flex: 48%; border: 1px solid;">
-      <h4>TODO:</h4>
-      <List items={tasks}>
-        <li slot="item" let:item>
-          <Checkbox value={item.done} />
-          {item.text}
-          <Button
-            on:click={() => removeTask(item)}
-            style="margin: 10px"
-            color="primary"
-            small="true"
-            flat="true">
-            <DeleteIcon size="24" />
-          </Button>
-        </li>
-      </List>
+  <div class="w-1/2 mx-auto py-10">
+    <TextField
+      placeholder="what needs to be done?"
+      on:keydown={(e) => e.key === 'Enter' && add(e.target)} />
+  </div>
+  <div class="flex flex-wrap">
+    <div class="w-full md:w-1/2">
+      <h2>todo</h2>
+      {#each todos.filter((t) => !t.done) as todo (todo.id)}
+        <div class="mb-10" in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
+          <Card.Card class="p-10 dark:bg-primary-500 dark:text-black w-full">
+            <Card.Title
+              class="py-5"
+              title="{todo.description}"
+            />
+            <div slot="actions">
+              <div class="p-2 flex justify-between align-center">
+                <Checkbox checked="{todo.done}" label="Done" on:change={() => mark(todo, true)} />
+                <Button class="dark:bg-white dark:text-black" on:click={() => remove(todo)}>Remove</Button>
+              </div>
+            </div>
+          </Card.Card>
+        </div>
+      {/each}
     </div>
-    <div style="flex: 2%" />
-    <div style="flex: 48%; border: 1px solid;">
-      <h4>DONE:</h4>
-      <List items={tasks}>
-        <li slot="item" let:item>
-          <Checkbox value={item.done} />
-          {item.text}
-          <Button
-            on:click={() => removeTask(item)}
-            style="margin: 10px"
-            color="primary"
-            small="true"
-            flat="true">
-            <DeleteIcon size="24" />
-          </Button>
-        </li>
-      </List>
+
+    <div class="w-full md:w-1/2">
+      <h2>done</h2>
+      {#each todos.filter((t) => t.done) as todo (todo.id)}
+        <div in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
+          <Card.Card class="p-10 m-5 dark:bg-primary-500 dark:text-black">
+            <Card.Title
+              class="py-5"
+              title="{todo.description}"
+            />
+            <div slot="actions" class="p-2">
+              <div class="flex justify-between align-center">
+                <Checkbox checked="{todo.done}" label="Done" on:change={() => mark(todo, false)} />
+                  <Button class="dark:bg-white dark:text-black" on:click={() => remove(todo)}>Remove</Button>
+              </div>
+            </div>
+          </Card.Card>
+        </div>
+      {/each}
     </div>
   </div>
 </main>
