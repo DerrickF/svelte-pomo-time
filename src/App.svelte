@@ -1,11 +1,8 @@
 <script>
   import dark from 'smelte/src/dark.js';
-  import breakpoints from 'smelte/src/breakpoints.js';
-  import { DeleteIcon } from 'svelte-feather-icons';
-  import { Button, TextField, List, Checkbox, Snackbar, Card } from 'smelte';
+  import { Button, TextField, Checkbox, Snackbar, Card } from 'smelte';
 
   const darkMode = dark();
-  const bp = breakpoints();
   let showSnackbar = false;
 
   import { quintOut } from 'svelte/easing';
@@ -33,9 +30,9 @@
   let uid = 1;
 
   let todos = [
-    { id: uid++, done: false, description: 'write some docs' },
-    { id: uid++, done: false, description: 'start writing blog post' },
     { id: uid++, done: true, description: 'buy some milk' },
+    { id: uid++, done: false, description: 'write some docs' },
+    { id: uid++, done: false, description: 'start writing really reallyreally really really really really really long blog post blog post' },
     { id: uid++, done: false, description: 'mow the lawn' },
     { id: uid++, done: false, description: 'feed the turtle' },
     { id: uid++, done: false, description: 'fix some bugs' },
@@ -86,46 +83,45 @@
   
   <Button bind:value={$darkMode}>Toggle dark mode</Button>
 
-  <div class="w-1/2 mx-auto py-10">
+  <div class="w-full md:w-1/2 mx-auto py-10">
     <TextField
       placeholder="what needs to be done?"
       on:keydown={(e) => e.key === 'Enter' && add(e.target)} />
   </div>
-  <div class="flex flex-wrap">
-    <div class="w-full md:w-1/2">
-      <h2>todo</h2>
+
+  <div class="flex flex-wrap mx-2 overflow-hidden">
+    <div class="my-2 px-2 w-full md:w-1/2">
+      <h1>TODO</h1>
       {#each todos.filter((t) => !t.done) as todo (todo.id)}
-        <div class="mb-10" in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
-          <Card.Card class="p-10 dark:bg-primary-500 dark:text-black w-full">
-            <Card.Title
-              class="py-5"
-              title="{todo.description}"
-            />
-            <div slot="actions">
-              <div class="p-2 flex justify-between align-center">
-                <Checkbox checked="{todo.done}" label="Done" on:change={() => mark(todo, true)} />
-                <Button class="dark:bg-white dark:text-black" on:click={() => remove(todo)}>Remove</Button>
+        <div in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
+          <Card.Card class="flex p-3 w-full my-2 ">
+            <div class="flex w-full justify-end">
+              <div class="py-2">
+                <Button small="true" color="alert" icon="close" on:click={() => remove(todo)}/>
               </div>
+            </div>
+            <div class="flex">
+              <Checkbox checked="{todo.done}" label="{todo.description}" on:change={() => mark(todo, true)} />
             </div>
           </Card.Card>
         </div>
       {/each}
+      {#if todos.filter((t) => !t.done).length <= 0}
+        <img style="display: inline" src="https://media.giphy.com/media/8JW82ndaYfmNoYAekM/giphy.gif" alt="done"/>
+      {/if }
     </div>
-
-    <div class="w-full md:w-1/2">
-      <h2>done</h2>
+    <div class="my-2 px-2 w-full md:w-1/2">
+      <h1>DONE</h1>
       {#each todos.filter((t) => t.done) as todo (todo.id)}
         <div in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
-          <Card.Card class="p-10 m-5 dark:bg-primary-500 dark:text-black">
-            <Card.Title
-              class="py-5"
-              title="{todo.description}"
-            />
-            <div slot="actions" class="p-2">
-              <div class="flex justify-between align-center">
-                <Checkbox checked="{todo.done}" label="Done" on:change={() => mark(todo, false)} />
-                  <Button class="dark:bg-white dark:text-black" on:click={() => remove(todo)}>Remove</Button>
+          <Card.Card class="flex p-3 w-full my-2 ">
+            <div class="flex w-full justify-end">
+              <div class="py-2">
+                <Button small="true" color="alert" icon="close" on:click={() => remove(todo)}/>
               </div>
+            </div>
+            <div class="flex">
+              <Checkbox checked="{todo.done}" label="{todo.description}" on:change={() => mark(todo, true)} />
             </div>
           </Card.Card>
         </div>
