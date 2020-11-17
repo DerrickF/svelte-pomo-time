@@ -91,10 +91,10 @@
 
   <div class="flex flex-wrap mx-2 overflow-hidden">
     <div class="my-2 px-2 w-full md:w-1/2">
-      <h1>TODO</h1>
+      <h2>TODO</h2>
       {#each todos.filter((t) => !t.done) as todo (todo.id)}
         <div in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
-          <Card.Card class="flex p-3 w-full my-2 ">
+          <Card.Card class="flex p-3 w-full my-2 dark:bg-gray">
             <div class="flex w-full justify-end">
               <div class="py-2">
                 <Button small="true" color="alert" icon="close" on:click={() => remove(todo)}/>
@@ -111,7 +111,7 @@
       {/if }
     </div>
     <div class="my-2 px-2 w-full md:w-1/2">
-      <h1>DONE</h1>
+      <h2>DONE</h2>
       {#each todos.filter((t) => t.done) as todo (todo.id)}
         <div in:receive={{ key: todo.id }} out:send={{ key: todo.id }}>
           <Card.Card class="flex p-3 w-full my-2 ">
@@ -121,7 +121,7 @@
               </div>
             </div>
             <div class="flex">
-              <Checkbox checked="{todo.done}" label="{todo.description}" on:change={() => mark(todo, true)} />
+              <Checkbox checked="{todo.done}" label="{todo.description}" on:change={() => mark(todo, false)} />
             </div>
           </Card.Card>
         </div>
