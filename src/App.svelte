@@ -1,4 +1,5 @@
 <script>
+  import Timer from './components/Timer.svelte';
   import dark from 'smelte/src/dark.js';
   import { Button, TextField, Checkbox, Snackbar, Card } from 'smelte';
 
@@ -83,9 +84,14 @@
   
   <Button bind:value={$darkMode}>Toggle dark mode</Button>
 
+  <div class="flex w-full justify-center my-5">
+    <Timer />
+  </div>
+
   <div class="w-full md:w-1/2 mx-auto py-10">
     <TextField
-      placeholder="what needs to be done?"
+      hint="You can do it !"
+      persistHint="true"
       on:keydown={(e) => e.key === 'Enter' && add(e.target)} />
   </div>
 
